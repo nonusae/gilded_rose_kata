@@ -1,15 +1,27 @@
+def agred_brie?(item)
+  item.name == 'Aged Brie'
+end
+
+def concert?(item)
+  item.name == 'Backstage passes to a TAFKAL80ETC concert'
+end
+
+def sulfuras?(item)
+  item.name == 'Sulfuras, Hand of Ragnaros'
+end
+
 def update_quality(items)
   items.each do |item|
-    if item.name != 'Aged Brie' && item.name != 'Backstage passes to a TAFKAL80ETC concert'
+    if !agred_brie?(item) && !concert?(item)
       if item.quality > 0
-        if item.name != 'Sulfuras, Hand of Ragnaros'
+        if !sulfuras?(item)
           item.quality -= 1
         end
       end
     else
       if item.quality < 50
         item.quality += 1
-        if item.name == 'Backstage passes to a TAFKAL80ETC concert'
+        if concert?(item)
           if item.sell_in < 11
             if item.quality < 50
               item.quality += 1
@@ -23,14 +35,14 @@ def update_quality(items)
         end
       end
     end
-    if item.name != 'Sulfuras, Hand of Ragnaros'
+    if !sulfuras?(item)
       item.sell_in -= 1
     end
     if item.sell_in < 0
-      if item.name != "Aged Brie"
-        if item.name != 'Backstage passes to a TAFKAL80ETC concert'
+      if !agred_brie?(item)
+        if !concert?(item)
           if item.quality > 0
-            if item.name != 'Sulfuras, Hand of Ragnaros'
+            if !sulfuras?(item)
               item.quality -= 1
             end
           end
