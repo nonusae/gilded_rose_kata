@@ -10,48 +10,59 @@ def sulfuras?(item)
   item.name == 'Sulfuras, Hand of Ragnaros'
 end
 
+def decrease_quality(item)
+  return if sulfuras?(item)
+
+  return if item.quality.zero?
+
+  item.quality -= 1
+end
+
+def increase_quality(item)
+  return if sulfuras?(item)
+
+  return if item.quality >= 50
+
+  item.quality += 1
+end
+
+def decrease_sell_in(item)
+  return if sulfuras?(item)
+
+  item.sell_in -= 1
+end
+
+def expired?(item)
+  item.sell_in < 0
+end
+
+
 def update_quality(items)
   items.each do |item|
-    if !agred_brie?(item) && !concert?(item)
-      if item.quality > 0
-        if !sulfuras?(item)
-          item.quality -= 1
-        end
+    if agred_brie?(item)
+      increase_quality(item)
+    elsif concert?(item)
+      increase_quality(item)
+      if item.sell_in < 11
+        increase_quality(item)
+      end
+      if item.sell_in < 6
+        increase_quality(item)
       end
     else
-      if item.quality < 50
-        item.quality += 1
-        if concert?(item)
-          if item.sell_in < 11
-            if item.quality < 50
-              item.quality += 1
-            end
-          end
-          if item.sell_in < 6
-            if item.quality < 50
-              item.quality += 1
-            end
-          end
-        end
-      end
+      decrease_quality(item)
     end
-    if !sulfuras?(item)
-      item.sell_in -= 1
-    end
-    if item.sell_in < 0
-      if !agred_brie?(item)
-        if !concert?(item)
-          if item.quality > 0
-            if !sulfuras?(item)
-              item.quality -= 1
-            end
-          end
-        else
-          item.quality = item.quality - item.quality
-        end
+
+    decrease_sell_in(item)
+
+    if expired?(item)
+      if agred_brie?(item)
+        increase_quality(item)
       else
-        if item.quality < 50
-          item.quality += 1
+        if concert?(item)
+          item.quality = 0
+        else
+          decrease_quality(item)
         end
       end
     end
