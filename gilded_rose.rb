@@ -11,7 +11,7 @@ class BaseItem
   end
 
   def update_sell_in
-    item.sell_in -=1
+    item.sell_in -= 1
   end
 
   def update_quality
@@ -69,6 +69,16 @@ class Sulfuras < BaseItem
   end
 end
 
+class Conjured < BaseItem
+  def update_quality
+    if expired?
+      bump_quality(-4)
+    else
+      bump_quality(-2)
+    end
+  end
+end
+
 def class_for(item)
   case item.name
   when 'Aged Brie'
@@ -77,6 +87,8 @@ def class_for(item)
     Concert.new(item)
   when 'Sulfuras, Hand of Ragnaros'
     Sulfuras.new(item)
+  when 'Conjured Mana Cake'
+    Conjured.new(item)
   else
     BaseItem.new(item)
   end
