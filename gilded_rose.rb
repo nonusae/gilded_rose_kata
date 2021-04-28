@@ -79,19 +79,16 @@ class Conjured < BaseItem
   end
 end
 
+ITEM_CLASSES = {
+  'Aged Brie' => AgredBrie,
+  'Sulfuras, Hand of Ragnaros' => Sulfuras,
+  'Backstage passes to a TAFKAL80ETC concert' => Concert,
+  'Conjured Mana Cake' => Conjured
+}
+
 def class_for(item)
-  case item.name
-  when 'Aged Brie'
-    AgredBrie.new(item)
-  when 'Backstage passes to a TAFKAL80ETC concert'
-    Concert.new(item)
-  when 'Sulfuras, Hand of Ragnaros'
-    Sulfuras.new(item)
-  when 'Conjured Mana Cake'
-    Conjured.new(item)
-  else
-    BaseItem.new(item)
-  end
+  klass = ITEM_CLASSES.fetch(item.name, BaseItem)
+  klass.new(item)
 end
 
 def update_quality(items)
