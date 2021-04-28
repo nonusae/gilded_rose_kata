@@ -1,71 +1,90 @@
-def agred_brie?(item)
-  item.name == 'Aged Brie'
+class BaseItem
+  attr_reader :item
+
+  def initialize(item)
+    @item = item
+  end
+
+  def update
+    update_sell_in
+    update_quality
+  end
+
+  def update_sell_in
+    item.sell_in -=1
+  end
+
+  def update_quality
+    return if item.quality <= 0
+
+    if expired?
+      bump_quality(-2)
+    else
+      bump_quality(-1)
+    end
+  end
+
+  def bump_quality(value=-1)
+    item.quality += value
+    item.quality = 50 if item.quality > 50
+    item.quality = 0 if item.quality < 0
+  end
+
+  def expired?
+    item.sell_in < 0
+  end
 end
 
-def concert?(item)
-  item.name == 'Backstage passes to a TAFKAL80ETC concert'
+class AgredBrie < BaseItem
+  def update_quality
+    if expired?
+      bump_quality(2)
+    else
+      bump_quality(1)
+    end
+  end
 end
 
-def sulfuras?(item)
-  item.name == 'Sulfuras, Hand of Ragnaros'
+class Concert < BaseItem
+  def update_quality
+    if item.sell_in >= 10
+      bump_quality(1)
+    elsif item.sell_in >= 5
+      bump_quality(2)
+    elsif item.sell_in >= 0
+      bump_quality(3)
+    else
+      item.quality = 0
+    end
+  end
 end
 
-def decrease_quality(item)
-  return if sulfuras?(item)
+class Sulfuras < BaseItem
+  def update_sell_in
+    item.sell_in = item.sell_in
+  end
 
-  return if item.quality.zero?
-
-  item.quality -= 1
+  def update_quality
+    item.quality = item.quality
+  end
 end
 
-def increase_quality(item)
-  return if sulfuras?(item)
-
-  return if item.quality >= 50
-
-  item.quality += 1
+def class_for(item)
+  case item.name
+  when 'Aged Brie'
+    AgredBrie.new(item)
+  when 'Backstage passes to a TAFKAL80ETC concert'
+    Concert.new(item)
+  when 'Sulfuras, Hand of Ragnaros'
+    Sulfuras.new(item)
+  else
+    BaseItem.new(item)
+  end
 end
-
-def decrease_sell_in(item)
-  return if sulfuras?(item)
-
-  item.sell_in -= 1
-end
-
-def expired?(item)
-  item.sell_in < 0
-end
-
 
 def update_quality(items)
   items.each do |item|
-    if agred_brie?(item)
-      increase_quality(item)
-    elsif concert?(item)
-      increase_quality(item)
-      if item.sell_in < 11
-        increase_quality(item)
-      end
-      if item.sell_in < 6
-        increase_quality(item)
-      end
-    else
-      decrease_quality(item)
-    end
-
-    decrease_sell_in(item)
-
-    if expired?(item)
-      if agred_brie?(item)
-        increase_quality(item)
-      else
-        if concert?(item)
-          item.quality = 0
-        else
-          decrease_quality(item)
-        end
-      end
-    end
+    class_for(item).update
   end
 end
 
